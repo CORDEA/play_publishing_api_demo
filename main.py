@@ -1,25 +1,22 @@
 import sys
 
-import google.auth
-from googleapiclient import discovery
-
-SCOPES = ['https://www.googleapis.com/auth/androidpublisher']
+import authorizer
 
 
-def main(name):
-    credentials, _ = google.auth.default(scopes=SCOPES)
-    client = discovery.build(
-        'androidpublisher',
-        'v3',
-        credentials=credentials
-    )
-
+def list_bundles(client, name):
     response = client.edits().insert(packageName=name).execute()
     edit_id = response['id']
 
     response = client.edits().bundles().list(editId=edit_id, packageName=name).execute()
-    bundles = response['bundles']
-    print(bundles)
+    return response['bundles']
+
+
+def main(name):
+    client = authorizer.authorize()
+    bundles = list_bundles(client, name)
+    for bundle in bundles:
+        print(bundle['versionCode'])
+        print(bundle['sha1'])
 
 
 if __name__ == '__main__':
