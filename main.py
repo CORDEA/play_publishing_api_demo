@@ -3,6 +3,13 @@ import sys
 import authorizer
 
 
+def get_details(client, name):
+    response = client.edits().insert(packageName=name).execute()
+    edit_id = response['id']
+
+    return client.edits().details().get(editId=edit_id, packageName=name).execute()
+
+
 def list_bundles(client, name):
     response = client.edits().insert(packageName=name).execute()
     edit_id = response['id']
@@ -21,6 +28,11 @@ def list_apks(client, name):
 
 def main(name):
     client = authorizer.authorize()
+
+    details = get_details(client, name)
+    print(details['contactEmail'])
+    print(details['contactWebsite'])
+
     bundles = list_bundles(client, name)
     for bundle in bundles:
         print(bundle['versionCode'])
